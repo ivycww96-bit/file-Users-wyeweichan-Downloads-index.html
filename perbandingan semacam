@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>非凡教育 · Kuiz Simile Bergambar</title>
+<style>
+  body { font-family: sans-serif; margin:0; background:#fafafa; color:#222; }
+  header { padding:16px; background:white; position:sticky; top:0; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+  h1 { font-size:18px; margin:0 0 6px; }
+  .note { font-size:13px; color:#555; }
+  .wrap { max-width:960px; margin:0 auto; padding:16px; }
+  .grid { display:grid; grid-template-columns:1fr; gap:16px; }
+  @media(min-width:700px){ .grid { grid-template-columns:1fr 1fr; } }
+  .card { background:white; border-radius:12px; padding:12px; box-shadow:0 4px 10px rgba(0,0,0,.08); }
+  .qnum { font-weight:600; margin-bottom:6px; }
+  img { width:100%; border-radius:10px; }
+  .input-row { margin-top:8px; display:flex; align-items:center; gap:8px; }
+  input[type=text]{ flex:1; padding:8px; border:1.5px solid #ccc; border-radius:8px; }
+  input.ok{ border-color:#1aaa55; background:#f3fbf5; }
+  input.bad{ border-color:#e53935; background:#fff5f5; }
+  .ans { display:none; font-size:12px; color:#666; margin-left:6px; }
+  .show .ans { display:inline; }
+  .btns{ position:sticky; bottom:0; background:#fafafa; padding:12px; display:flex; gap:10px; justify-content:center; border-top:1px solid #ddd; }
+  button{ padding:10px 14px; border-radius:8px; border:none; font-weight:600; cursor:pointer; }
+  .primary{ background:#e53935; color:white; }   /* 红色 */
+  .outline{ background:#00bcd4; color:white; }   /* 青色 */
+  .ghost{ background:#fdd835; color:black; }     /* 黄色 */
+  .score{ font-weight:700; }
+</style>
+</head>
+<body>
+<header>
+  <h1>非凡教育 · Kuiz Simile Bergambar</h1>
+  <div class="note">说明：看图，在输入框键入<b>小写</b>马来文答案，例如 <code>berat macam batu</code>。</div>
+</header>
+
+<div class="wrap">
+  <div id="list" class="grid"></div>
+</div>
+
+<div class="btns">
+  <button class="primary" id="submitBtn">检查与评分</button>
+  <button class="outline" id="showBtn">显示答案</button>
+  <button class="ghost" id="resetBtn">重做</button>
+  <span class="score" id="scoreBox"></span>
+</div>
+
+<script>
+const QUESTIONS = [
+  {id:1, img:"images/1.png",  correct:["besar macam gajah"]},
+  {id:2, img:"images/2.png",  correct:["panas macam api"]},
+  {id:3, img:"images/3.png",  correct:["pantas macam kilat"]},
+  {id:4, img:"images/4.png",  correct:["cantik macam bidadari"]},
+  {id:5, img:"images/5.png",  correct:["angkuh macam merak"]},
+  {id:6, img:"images/6.png",  correct:["bebas macam burung"]},
+  {id:7, img:"images/7.png",  correct:["lambat macam kura-kura","lambat macam kura kura"]},
+  {id:8, img:"images/8.png",  correct:["lambat macam siput"]},
+  {id:9, img:"images/9.png",  correct:["cerah macam siang"]},
+  {id:10,img:"images/10.png", correct:["cerdik seperti kancil","cerdik macam kancil"]}
+];
+
+const list=document.getElementById("list");
+function card(q){
+  const c=document.createElement("div"); c.className="card";
+  c.innerHTML=`
+    <div class="qnum">Soalan ${q.id}</div>
+    <img src="${q.img}">
+    <div class="input-row">
+      <input type="text" placeholder="contoh: berat macam batu" data-id="${q.id}">
+      <span class="ans">Jawapan: <b>${q.correct[0]}</b></span>
+    </div>`;
+  return c;
+}
+QUESTIONS.forEach(q=>list.appendChild(card(q)));
+
+function norm(s){ return s.toLowerCase().replace(/[-–—]/g," ").replace(/\s+/g," ").trim(); }
+function isCorrect(user, arr){ return arr.some(c=>norm(c)===norm(user)); }
+
+document.getElementById("submitBtn").onclick=()=>{
+  let score=0;
+  document.querySelectorAll("input").forEach(inp=>{
+    const q=QUESTIONS.find(x=>x.id==inp.dataset.id);
+    if(isCorrect(inp.value,q.correct)){inp.classList.add("ok"); inp.classList.remove("bad"); score++; }
+    else{ inp.classList.add("bad"); inp.classList.remove("ok"); }
+  });
+  document.getElementById("scoreBox").textContent="Markah: "+score+" / "+QUESTIONS.length;
+};
+document.getElementById("showBtn").onclick=(e)=>{
+  document.querySelector(".wrap").classList.toggle("show");
+  e.target.textContent=document.querySelector(".wrap").classList.contains("show")?"隐藏答案":"显示答案";
+};
+document.getElementById("resetBtn").onclick=()=>{
+  document.getElementById("scoreBox").textContent="";
+  document.querySelectorAll("input").forEach(i=>{i.value=""; i.classList.remove("ok","bad");});
+  document.querySelector(".wrap").classList.remove("show");
+  document.getElementById("showBtn").textContent="显示答案";
+};
+</script>
+</body>
+</html>
